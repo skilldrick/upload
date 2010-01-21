@@ -1,0 +1,29 @@
+*** ftplib.py	2010-01-19 22:47:22.000000000 +0000
+--- ftplib.py.OLD	2010-01-19 22:45:07.000000000 +0000
+***************
+*** 473,487 ****
+          while 1:
+              buf = fp.readline()
+              if not buf: break
+!             if isinstance(buf, str):
+!                 if not buf.endswith(CRLF):
+!                     if buf[-1] in CRLF: buf = buf[:-1]
+!                     buf = buf + CRLF
+!                 buf = bytes(buf, self.encoding)
+!             else:
+!                 if not buf.endswith(B_CRLF):
+!                     if buf[-1:] in B_CRLF: buf = buf[:-1]
+!                     buf = buf + B_CRLF
+              conn.sendall(buf)
+              if callback: callback(buf)
+          conn.close()
+--- 473,481 ----
+          while 1:
+              buf = fp.readline()
+              if not buf: break
+!             if buf[-2:] != B_CRLF:
+!                 if buf[-1] in B_CRLF: buf = buf[:-1]
+!                 buf = buf + B_CRLF
+              conn.sendall(buf)
+              if callback: callback(buf)
+          conn.close()
