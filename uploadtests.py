@@ -5,6 +5,9 @@ from upload import Upload
 class UploadTests(unittest.TestCase):
     def setUp(self):
         self.upload = Upload()
+
+    def tearDown(self):
+        self.upload.close()
     
     def testThereAreNDirs(self):
         N = 15
@@ -56,7 +59,22 @@ class UploadTests(unittest.TestCase):
         pwd = self.upload.getPwd()
         self.assertEqual(path, pwd)
 
-    
+    def testGetLocalDirs(self):
+        localRoot = 'testdir/txtfiles'
+        dirs = [
+            localRoot,
+            localRoot + '/boring',
+            localRoot + '/interesting']
+        self.assertEqual(self.upload.getLocalDirs(localRoot),
+                         dirs)
+
+    """
+    def testCreateDirTreeOnServer(self):
+        localRoot = 'testdir'
+        remoteRoot = '/public_html/testdir'
+        localDirs = self.upload.getLocalDirs(localRoot)
+        print(localDirs)
+""" 
 
 if __name__ == '__main__':
     unittest.main()

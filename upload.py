@@ -29,6 +29,9 @@ class Upload:
         self.ftp = FTP(self.site)
         self.ftp.login(user=self.user, passwd=self.passwd)
 
+    def close(self):
+        self.ftp.quit()
+
     def uploadAscii(self, local, remote):
         self.ftp.cwd('/public_html/swedish/mytest')
         file = open(local)
@@ -60,6 +63,12 @@ class Upload:
         for x in os.walk(dir):
             count += 1
         return count
+
+    def getLocalDirs(self, dir):
+        dirs = []
+        for x in os.walk(dir):
+            dirs.append(x[0])
+        return dirs
 
     def getType(self, file):
         result = re.search('\.([a-z]*)$', file)
