@@ -1,6 +1,7 @@
 import unittest
 
 import upload
+import os
 
 class RemoteTests(unittest.TestCase):
     def setUp(self):
@@ -72,11 +73,12 @@ class LocalTests(unittest.TestCase):
                          self.local.countDirs('testdir'))
 
     def testGetLocalDirs(self):
-        localRoot = 'testdir/txtfiles'
+        s = os.sep
+        localRoot = 'testdir' + s + 'txtfiles'
         dirs = [
             localRoot,
-            localRoot + '/boring',
-            localRoot + '/interesting']
+            localRoot + s + 'boring',
+            localRoot + s + 'interesting']
         self.assertEqual(self.local.getLocalDirs(localRoot),
                          dirs)
 

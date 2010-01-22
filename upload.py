@@ -41,7 +41,7 @@ class Remote:
     def __init__(self):
         try:
             x = netrc.netrc()
-        except SomeError:
+        except IOError:
             homedir = os.path.expanduser('~') + '\\Application Data\\'
             x = netrc.netrc(homedir + '.netrc')
         info = x.authenticators(self.site)
