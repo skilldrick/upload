@@ -19,10 +19,10 @@ class Upload:
     
     def __init__(self):
         try:
-            homedir = os.environ['HOME']
-        except KeyError:
+            x = netrc.netrc()
+        except SomeError:
             homedir = os.path.expanduser('~') + '\\Application Data\\'
-        x = netrc.netrc(homedir + '.netrc')
+            x = netrc.netrc(homedir + '.netrc')
         info = x.authenticators(self.site)
         self.user = info[0]
         self.passwd = info[2]
