@@ -3,6 +3,19 @@ import unittest
 import upload
 import os
 
+
+class UploaderTests(unittest.TestCase):
+    def setUp(self):
+        self.uploader = upload.Uploader()
+        
+    def testCreateDirTreeOnServer(self):
+        localRoot = 'testdir'
+        remoteRoot = '/public_html'
+        success = self.uploader.createDirs(localRoot,
+                                           remoteRoot)
+        self.assertTrue(success)
+        
+
 class RemoteTests(unittest.TestCase):
     def setUp(self):
         self.remote = upload.Remote()
@@ -55,14 +68,7 @@ class RemoteTests(unittest.TestCase):
         pwd = self.remote.getPwd()
         self.assertEqual(path, pwd)
 
-    """
-    def testCreateDirTreeOnServer(self):
-        localRoot = 'testdir'
-        remoteRoot = '/public_html/testdir'
-        localDirs = self.remote.getLocalDirs(localRoot)
-        print(localDirs)
-""" 
-
+    
 class LocalTests(unittest.TestCase):
     def setUp(self):
         self.local = upload.Local()

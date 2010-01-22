@@ -6,15 +6,21 @@ import re
 import netrc
 
 
-class Local:
-    def traverse(self):
-        count = 0
-        for root, dirs, files in os.walk('test'):
-            if '.git' not in root:
-                print(root, dirs)
-                count += 1
-        print(count)
+class Uploader:
+    def __init__(self):
+        self.local = Local()
+        self.remote = Remote()
 
+    def createDirs(self, localRoot, remoteRoot):
+        self.remote.setCwd(remoteRoot)
+        success = True
+        for dir in self.local.getLocalDirs(localRoot):
+            self.remote.create(dir)
+            if not self.remote.exists(dir):
+                success = False
+        return success
+
+class Local:
     def countDirs(self, dir):
         count = 0
         for x in os.walk(dir):
@@ -49,6 +55,7 @@ class Remote:
         self.passwd = info[2]
         self.ftp = FTP(self.site)
         self.ftp.login(user=self.user, passwd=self.passwd)
+        self.local = Local()
 
     def close(self):
         self.ftp.quit()
@@ -65,11 +72,6 @@ class Remote:
         file = open(local, 'rb')
         self.ftp.storbinary('STOR ' + remote, file)
         file.close()
-
-    #uploadAscii('githelp.txt', 'githelp.txt')
-    #uploadBinary('logo2.png', 'logo3.png')
-
-
 
     def getType(self, file):
         result = re.search('\.([a-z]*)$', file)
