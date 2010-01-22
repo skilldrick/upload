@@ -1,19 +1,14 @@
 import unittest
 
-from upload import Upload
+import upload
 
-class UploadTests(unittest.TestCase):
+class RemoteTests(unittest.TestCase):
     def setUp(self):
-        self.upload = Upload()
+        self.remote = upload.Remote()
 
     def tearDown(self):
-        self.upload.close()
+        self.remote.close()
     
-    def testThereAreNDirs(self):
-        N = 15
-        self.assertEqual(N,
-                         self.upload.countDirs('testdir'))
-
     def testLinesMode(self):
         filenames = [
             'foo.txt',
@@ -22,7 +17,7 @@ class UploadTests(unittest.TestCase):
             ]
         for file in filenames:
             self.assertEqual('lines',
-                             self.upload.getType(file))
+                             self.remote.getType(file))
 
     def testBinaryMode(self):
         filenames = [
@@ -34,30 +29,47 @@ class UploadTests(unittest.TestCase):
             ]
         for file in filenames:
             self.assertEqual('binary',
-                             self.upload.getType(file))
+                             self.remote.getType(file))
 
     def testCreateDirOnServer(self):
-        self.upload.create(
+        self.remote.create(
             '/public_html/swedish/mytest/newdir4')
-        exists = self.upload.exists(
+        exists = self.remote.exists(
             '/public_html/swedish/mytest/newdir4')
         self.assertTrue(exists)
 
     def testFakeDirOnServer(self):
-        exists = self.upload.exists(
+        exists = self.remote.exists(
             '/public_html/thisdirwillneverexist')
         self.assertFalse(exists)
 
     def testDirExistsOnServer(self):
-        exists1 = self.upload.exists('/public_html')
-        exists2 = self.upload.exists('/public_html/')
+        exists1 = self.remote.exists('/public_html')
+        exists2 = self.remote.exists('/public_html/')
         self.assertTrue(exists1 and exists2)
         
     def testSetCwd(self):
         path = '/public_html'
-        self.upload.setCwd(path)
-        pwd = self.upload.getPwd()
+        self.remote.setCwd(path)
+        pwd = self.remote.getPwd()
         self.assertEqual(path, pwd)
+
+    """
+    def testCreateDirTreeOnServer(self):
+        localRoot = 'testdir'
+        remoteRoot = '/public_html/testdir'
+        localDirs = self.remote.getLocalDirs(localRoot)
+        print(localDirs)
+""" 
+
+class LocalTests(unittest.TestCase):
+    def setUp(self):
+        self.local = upload.Local()
+
+    def testThereAreNDirs(self):
+        N = 15
+        self.assertEqual(N,
+                         self.local.countDirs('testdir'))
 
     def testGetLocalDirs(self):
         localRoot = 'testdir/txtfiles'
@@ -65,16 +77,9 @@ class UploadTests(unittest.TestCase):
             localRoot,
             localRoot + '/boring',
             localRoot + '/interesting']
-        self.assertEqual(self.upload.getLocalDirs(localRoot),
+        self.assertEqual(self.local.getLocalDirs(localRoot),
                          dirs)
 
-    """
-    def testCreateDirTreeOnServer(self):
-        localRoot = 'testdir'
-        remoteRoot = '/public_html/testdir'
-        localDirs = self.upload.getLocalDirs(localRoot)
-        print(localDirs)
-""" 
-
+    
 if __name__ == '__main__':
     unittest.main()

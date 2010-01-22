@@ -6,8 +6,29 @@ import re
 import netrc
 
 
+class Local:
+    def traverse(self):
+        count = 0
+        for root, dirs, files in os.walk('test'):
+            if '.git' not in root:
+                print(root, dirs)
+                count += 1
+        print(count)
 
-class Upload:
+    def countDirs(self, dir):
+        count = 0
+        for x in os.walk(dir):
+            count += 1
+        return count
+
+    def getLocalDirs(self, dir):
+        dirs = []
+        for x in os.walk(dir):
+            dirs.append(x[0])
+        return dirs
+
+
+class Remote:
     lineExts = [
         'txt',
         'php',
@@ -49,26 +70,6 @@ class Upload:
     #uploadBinary('logo2.png', 'logo3.png')
 
 
-    def traverse(self):
-        count = 0
-        for root, dirs, files in os.walk('test'):
-            if '.git' not in root:
-                print(root, dirs)
-                count += 1
-        print(count)
-
-
-    def countDirs(self, dir):
-        count = 0
-        for x in os.walk(dir):
-            count += 1
-        return count
-
-    def getLocalDirs(self, dir):
-        dirs = []
-        for x in os.walk(dir):
-            dirs.append(x[0])
-        return dirs
 
     def getType(self, file):
         result = re.search('\.([a-z]*)$', file)
