@@ -47,12 +47,11 @@ class LocalTests(unittest.TestCase):
 
     def testSizeOfLocalFile(self):
         assumedSize = 165
-        s = os.sep
-        file = os.path.join('testdir',
-                            'txtfiles',
-                            'boring',
-                            'log.txt',)
-        actualSize = self.local.getSize(file)
+        filename = os.path.join('testdir',
+                                'txtfiles',
+                                'boring',
+                                'log.txt',)
+        actualSize = self.local.getSize(filename)
         self.assertEqual(assumedSize, actualSize)
 
     
@@ -69,9 +68,9 @@ class RemoteTests(unittest.TestCase):
             'my test file with spaces.html',
             'index.php',
             ]
-        for file in filenames:
+        for filename in filenames:
             self.assertEqual('lines',
-                             self.remote.getType(file))
+                             self.remote.getType(filename))
 
     def testBinaryMode(self):
         filenames = [
@@ -81,9 +80,9 @@ class RemoteTests(unittest.TestCase):
             'th1s_has_underscor3s_and_numbers42.jpeg',
             'noextensionatall',
             ]
-        for file in filenames:
+        for filename in filenames:
             self.assertEqual('binary',
-                             self.remote.getType(file))
+                             self.remote.getType(filename))
 
     def testCreateDirOnServer(self):
         self.remote.create(
@@ -108,8 +107,21 @@ class RemoteTests(unittest.TestCase):
         pwd = self.remote.getPwd()
         self.assertEqual(path, pwd)
 
-    #def testSizeOfRemoteFile(self):
+    def testSizeOfRemoteFile(self):
+        assumedSize = 165
+        filename = 'testdir/txtfiles/boring/log.txt'
+        actualSize = self.remote.getSize(filename)
+        self.assertEqual(assumedSize, actualSize)
+        
 
+    def testUploadLines(self):
+        filename = os.path.join('testdir',
+                                'txtfiles',
+                                'boring',
+                                'log.txt',)
+        self.remote.upload(filename,
+                           'testdir/txtfiles/boring/log.txt')
+        
     
 if __name__ == '__main__':
     unittest.main()

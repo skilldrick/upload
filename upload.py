@@ -37,8 +37,8 @@ class Local:
                 dirs.append(x[0])
         return dirs
 
-    def getSize(self, file):
-        return os.path.getsize(file)
+    def getSize(self, filename):
+        return os.path.getsize(filename)
 
 
 class Remote:
@@ -67,21 +67,27 @@ class Remote:
     def close(self):
         self.ftp.quit()
 
+    def upload(self, local, remote):
+        if self.getType(local) == 'lines':
+            self.uploadAscii(local, remote)
+        else:
+            self.uploadBinary(local, remote)
+
     def uploadAscii(self, local, remote):
-        self.ftp.cwd('/public_html/swedish/mytest')
+        self.ftp.cwd('/public_html')
         file = open(local)
         self.ftp.storlines('STOR ' + remote, file)
-        self.ftp.retrlines('RETR ' + remote)
+        #self.ftp.retrlines('RETR ' + remote)
         file.close()
 
     def uploadBinary(self, local, remote):
-        self.ftp.cwd('/public_html/swedish/mytest')
+        self.ftp.cwd('/public_html')
         file = open(local, 'rb')
         self.ftp.storbinary('STOR ' + remote, file)
         file.close()
 
-    def getType(self, file):
-        result = re.search('\.([a-z]*)$', file)
+    def getType(self, filename):
+        result = re.search('\.([a-z]*)$', filename)
         try:
             ext = result.group(1)
         except AttributeError:
@@ -103,4 +109,7 @@ class Remote:
 
     def getPwd(self):
         return self.ftp.pwd()
-        
+
+    def getSize(self, filename):
+        self.setCwd('/public_html')
+        return self.ftp.size(filename)
