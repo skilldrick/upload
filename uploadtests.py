@@ -14,6 +14,10 @@ class UploaderTests(unittest.TestCase):
         success = self.uploader.createDirs(localRoot,
                                            remoteRoot)
         self.assertTrue(success)
+
+    def testUploadAllFiles(self):
+        success = self.uploader.uploadFiles()
+        #self.assertTrue(success)
         
 
 class LocalTests(unittest.TestCase):
@@ -113,7 +117,6 @@ class RemoteTests(unittest.TestCase):
         actualSize = self.remote.getSize(filename)
         self.assertEqual(assumedSize, actualSize)
         
-
     def testUploadLines(self):
         filename = os.path.join('testdir',
                                 'txtfiles',
@@ -121,7 +124,15 @@ class RemoteTests(unittest.TestCase):
                                 'log.txt',)
         self.remote.upload(filename,
                            'testdir/txtfiles/boring/log.txt')
-        
+
+    def testUploadBinary(self):
+        filename = os.path.join('testdir',
+                                'images',
+                                'photos',
+                                'photo-4.jpg',)
+        self.remote.upload(filename,
+                           'testdir/images/photos/photo-4.jpg')
+
     
 if __name__ == '__main__':
     unittest.main()

@@ -21,6 +21,10 @@ class Uploader:
                 success = False
         return success
 
+    def uploadFiles(self):
+        return False
+
+
 class Local:
     def countDirs(self, dir):
         count = 0
