@@ -16,6 +16,46 @@ class UploaderTests(unittest.TestCase):
         self.assertTrue(success)
         
 
+class LocalTests(unittest.TestCase):
+    def setUp(self):
+        self.local = upload.Local()
+
+    def testThereAreNDirs(self):
+        N = 15
+        self.assertEqual(N,
+                         self.local.countDirs('testdir'))
+
+    def testGetLocalDirs(self):
+        s = os.sep
+        localRoot = 'testdir' + s + 'txtfiles'
+        dirs = [
+            localRoot,
+            localRoot + s + 'boring',
+            localRoot + s + 'interesting']
+        self.assertEqual(self.local.getLocalDirs(localRoot),
+                         dirs)
+
+    def testGetLocalLeaves(self):
+        s = os.sep
+        localRoot = 'testdir' + s + 'txtfiles'
+        dirs = [
+            localRoot + s + 'boring',
+            localRoot + s + 'interesting']
+        self.assertEqual(self.local.getLocalDirs(localRoot,
+                                                 True),
+                         dirs)
+
+    def testSizeOfLocalFile(self):
+        assumedSize = 165
+        s = os.sep
+        file = os.path.join('testdir',
+                            'txtfiles',
+                            'boring',
+                            'log.txt',)
+        actualSize = self.local.getSize(file)
+        self.assertEqual(assumedSize, actualSize)
+
+    
 class RemoteTests(unittest.TestCase):
     def setUp(self):
         self.remote = upload.Remote()
@@ -68,25 +108,7 @@ class RemoteTests(unittest.TestCase):
         pwd = self.remote.getPwd()
         self.assertEqual(path, pwd)
 
-    
-class LocalTests(unittest.TestCase):
-    def setUp(self):
-        self.local = upload.Local()
-
-    def testThereAreNDirs(self):
-        N = 15
-        self.assertEqual(N,
-                         self.local.countDirs('testdir'))
-
-    def testGetLocalDirs(self):
-        s = os.sep
-        localRoot = 'testdir' + s + 'txtfiles'
-        dirs = [
-            localRoot,
-            localRoot + s + 'boring',
-            localRoot + s + 'interesting']
-        self.assertEqual(self.local.getLocalDirs(localRoot),
-                         dirs)
+    #def testSizeOfRemoteFile(self):
 
     
 if __name__ == '__main__':

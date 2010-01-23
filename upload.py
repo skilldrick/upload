@@ -16,6 +16,7 @@ class Uploader:
         success = True
         for dir in self.local.getLocalDirs(localRoot):
             self.remote.create(dir)
+        for dir in self.local.getLocalDirs(localRoot, True):
             if not self.remote.exists(dir):
                 success = False
         return success
@@ -27,11 +28,17 @@ class Local:
             count += 1
         return count
 
-    def getLocalDirs(self, dir):
+    def getLocalDirs(self, dir, leaves=False):
         dirs = []
         for x in os.walk(dir):
-            dirs.append(x[0])
+            if leaves and x[1] == []:
+                dirs.append(x[0])
+            if not leaves:
+                dirs.append(x[0])
         return dirs
+
+    def getSize(self, file):
+        return os.path.getsize(file)
 
 
 class Remote:
