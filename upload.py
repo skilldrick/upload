@@ -85,6 +85,7 @@ class Remote:
         self.passwd = info[2]
         self.ftp = FTP(self.site)
         self.ftp.login(user=self.user, passwd=self.passwd)
+        self.setCwd('/public_html')
         self.local = Local()
 
     def close(self):
@@ -120,12 +121,16 @@ class Remote:
         else:
             return 'binary'
 
-    def create(self, path):
-        if not self.exists(path):
-            self.ftp.mkd(path)
+    def create(self, dir):
+        if not self.exists(dir):
+            self.ftp.mkd(dir)
 
-    def exists(self, path):
-        return bool(len(self.ftp.nlst(path)))
+    def exists(self, parent, item=None):
+        parent = self.rstrip(parent)
+        if item == None:
+            parent, item = os.path.split(parent)
+        filelist = self.ftp.nlst(parent)
+        return item in filelist
 
     def setCwd(self, path):
         return self.ftp.cwd(path)
@@ -136,3 +141,6 @@ class Remote:
     def getSize(self, filename):
         self.setCwd('/public_html')
         return self.ftp.size(filename)
+
+    def rstrip(self, path):
+        return path.rstrip('/')

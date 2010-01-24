@@ -97,12 +97,12 @@ class RemoteTests(unittest.TestCase):
         self.remote.create(
             '/public_html/swedish/mytest/newdir4')
         exists = self.remote.exists(
-            '/public_html/swedish/mytest/newdir4')
+            '/public_html/swedish/mytest', 'newdir4')
         self.assertTrue(exists)
 
     def testFakeDirOnServer(self):
         exists = self.remote.exists(
-            '/public_html/thisdirwillneverexist')
+            '/public_html', 'thisdirwillneverexist')
         self.assertFalse(exists)
 
     def testDirExistsOnServer(self):
@@ -130,7 +130,7 @@ class RemoteTests(unittest.TestCase):
         self.remote.upload(filename,
                            'testdir/txtfiles/boring/log.txt')
 
-    def UploadBinary(self):
+    def testUploadBinary(self):
         filename = os.path.join('testdir',
                                 'images',
                                 'photos',
