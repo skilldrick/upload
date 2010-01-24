@@ -60,8 +60,6 @@ class Local:
         for x in os.walk(dir):
             for file in x[2]:
                 yield os.path.join(x[0], file)
-            #if x[2]: #if dir has file children
-                #yield x[0], x[2]
 
 
 class Remote:
@@ -101,7 +99,6 @@ class Remote:
         self.ftp.cwd('/public_html')
         file = open(local)
         self.ftp.storlines('STOR ' + remote, file)
-        #self.ftp.retrlines('RETR ' + remote)
         file.close()
 
     def uploadBinary(self, local, remote):
