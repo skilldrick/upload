@@ -21,8 +21,21 @@ class Uploader:
                 success = False
         return success
 
-    def uploadFiles(self):
-        return False
+    def uploadFiles(self, dir):
+        files = self.local.getLocalFiles(dir)
+        for localPath in files:
+            remotePath = localPath.replace('\\', '/')
+            localSize = self.local.getSize(localPath)
+            if self.remote.exists(remotePath):
+                remoteSize = self.remote.getSize(remotePath)
+            else:
+                remoteSize = -1
+            if not localSize == remoteSize:
+                self.remote.upload(localPath, remotePath)
+            remoteSize = self.remote.getSize(remotePath)
+            if not localSize == remoteSize:
+                return False
+        return True
 
 
 class Local:
@@ -36,13 +49,19 @@ class Local:
         dirs = []
         for x in os.walk(dir):
             if leaves and x[1] == []:
-                dirs.append(x[0])
+                yield x[0]
             if not leaves:
-                dirs.append(x[0])
-        return dirs
+                yield x[0]
 
     def getSize(self, filename):
         return os.path.getsize(filename)
+
+    def getLocalFiles(self, dir):
+        for x in os.walk(dir):
+            for file in x[2]:
+                yield os.path.join(x[0], file)
+            #if x[2]: #if dir has file children
+                #yield x[0], x[2]
 
 
 class Remote:

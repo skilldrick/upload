@@ -16,8 +16,8 @@ class UploaderTests(unittest.TestCase):
         self.assertTrue(success)
 
     def testUploadAllFiles(self):
-        success = self.uploader.uploadFiles()
-        #self.assertTrue(success)
+        success = self.uploader.uploadFiles('testdir')
+        self.assertTrue(success)
         
 
 class LocalTests(unittest.TestCase):
@@ -36,7 +36,7 @@ class LocalTests(unittest.TestCase):
             localRoot,
             localRoot + s + 'boring',
             localRoot + s + 'interesting']
-        self.assertEqual(self.local.getLocalDirs(localRoot),
+        self.assertEqual(list(self.local.getLocalDirs(localRoot)),
                          dirs)
 
     def testGetLocalLeaves(self):
@@ -45,8 +45,8 @@ class LocalTests(unittest.TestCase):
         dirs = [
             localRoot + s + 'boring',
             localRoot + s + 'interesting']
-        self.assertEqual(self.local.getLocalDirs(localRoot,
-                                                 True),
+        self.assertEqual(list(self.local.getLocalDirs(localRoot,
+                                                      True)),
                          dirs)
 
     def testSizeOfLocalFile(self):
@@ -57,6 +57,11 @@ class LocalTests(unittest.TestCase):
                                 'log.txt',)
         actualSize = self.local.getSize(filename)
         self.assertEqual(assumedSize, actualSize)
+
+    def testGetLocalFiles(self):
+        files = self.local.getLocalFiles('testdir')
+        count = len(list(files))
+        self.assertEqual(count, 15)
 
     
 class RemoteTests(unittest.TestCase):
@@ -125,7 +130,7 @@ class RemoteTests(unittest.TestCase):
         self.remote.upload(filename,
                            'testdir/txtfiles/boring/log.txt')
 
-    def testUploadBinary(self):
+    def UploadBinary(self):
         filename = os.path.join('testdir',
                                 'images',
                                 'photos',
