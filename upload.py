@@ -15,16 +15,18 @@ class Uploader:
         self.remote.setCwd(remoteRoot)
         success = True
         for dir in self.local.getLocalDirs(localRoot):
-            self.remote.create(dir)
+            remoteDir = self.remote.makeUnix(dir)
+            self.remote.create(remoteDir)
         for dir in self.local.getLocalDirs(localRoot, True):
-            if not self.remote.exists(dir):
+            remoteDir = self.remote.makeUnix(dir)
+            if not self.remote.exists(remoteDir):
                 success = False
         return success
 
     def uploadFiles(self, dir):
         files = self.local.getLocalFiles(dir)
         for localPath in files:
-            remotePath = localPath.replace('\\', '/')
+            remotePath = self.remote.makeUnix(localPath)
             localSize = self.local.getSize(localPath)
             if self.remote.exists(remotePath):
                 remoteSize = self.remote.getSize(remotePath)
@@ -119,6 +121,7 @@ class Remote:
             return 'binary'
 
     def create(self, dir):
+        dir = self.makeUnix(dir)
         if not self.exists(dir):
             self.ftp.mkd(dir)
 
@@ -141,3 +144,6 @@ class Remote:
 
     def rstrip(self, path):
         return path.rstrip('/')
+
+    def makeUnix(self, path):
+        return path.replace('\\', '/')
