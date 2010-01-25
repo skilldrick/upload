@@ -61,7 +61,7 @@ class LocalTests(unittest.TestCase):
     def testGetLocalFiles(self):
         files = self.local.getLocalFiles('testdir')
         count = len(list(files))
-        self.assertEqual(count, 15)
+        self.assertEqual(count, 19)
 
     
 class RemoteTests(unittest.TestCase):
