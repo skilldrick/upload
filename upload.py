@@ -4,15 +4,17 @@ from ftplib import FTP
 import os
 import re
 import netrc
+import optparse
 
+import options
 
 class Uploader:
-    def __init__(self):
+    def __init__(self, site=options.site, verbose=False):
+        self.verbose = verbose
         self.local = Local()
-        self.remote = Remote()
+        self.remote = Remote(site)
 
-    def createDirs(self, localRoot, remoteRoot):
-        self.remote.setCwd(remoteRoot)
+    def createDirs(self, localRoot):
         success = True
         for dir in self.local.getLocalDirs(localRoot):
             remoteDir = self.remote.makeUnix(dir)
@@ -21,6 +23,10 @@ class Uploader:
             remoteDir = self.remote.makeUnix(dir)
             if not self.remote.exists(remoteDir):
                 success = False
+        if self.verbose and success:
+            print('Directories created successfully')
+        elif self.verbose:
+            print('Error creating directories')
         return success
 
     def uploadFiles(self, dir):
@@ -33,6 +39,8 @@ class Uploader:
             else:
                 remoteSize = -1
             if not localSize == remoteSize:
+                if self.verbose:
+                    print('Uploading', localPath)
                 self.remote.upload(localPath, remotePath)
             remoteSize = self.remote.getSize(remotePath)
             if not localSize == remoteSize:
@@ -48,7 +56,6 @@ class Local:
         return count
 
     def getLocalDirs(self, dir, leaves=False):
-        dirs = []
         for x in os.walk(dir):
             if leaves and x[1] == []:
                 yield x[0]
@@ -72,20 +79,20 @@ class Remote:
         'py',
         ]
 
-    site = 'ftp.skilldrick.co.uk'
-    
-    def __init__(self):
+    webRoot = options.webRoot
+
+    def __init__(self, site):
         try:
             x = netrc.netrc()
         except IOError:
             homedir = os.path.expanduser('~') + '\\Application Data\\'
             x = netrc.netrc(homedir + '.netrc')
-        info = x.authenticators(self.site)
+        info = x.authenticators(site)
         self.user = info[0]
         self.passwd = info[2]
-        self.ftp = FTP(self.site)
+        self.ftp = FTP(site)
         self.ftp.login(user=self.user, passwd=self.passwd)
-        self.setCwd('/public_html')
+        self.setCwd(self.webRoot)
         self.local = Local()
 
     def close(self):
@@ -98,13 +105,13 @@ class Remote:
             self.uploadBinary(local, remote)
 
     def uploadAscii(self, local, remote):
-        self.ftp.cwd('/public_html')
+        self.ftp.cwd(self.webRoot)
         file = open(local)
         self.ftp.storlines('STOR ' + remote, file)
         file.close()
 
     def uploadBinary(self, local, remote):
-        self.ftp.cwd('/public_html')
+        self.ftp.cwd(self.webRoot)
         file = open(local, 'rb')
         self.ftp.storbinary('STOR ' + remote, file)
         file.close()
@@ -139,7 +146,7 @@ class Remote:
         return self.ftp.pwd()
 
     def getSize(self, filename):
-        self.setCwd('/public_html')
+        self.setCwd(self.webRoot)
         return self.ftp.size(filename)
 
     def rstrip(self, path):
@@ -147,3 +154,20 @@ class Remote:
 
     def makeUnix(self, path):
         return path.replace('\\', '/')
+
+
+
+if __name__ == '__main__':
+    parser = optparse.OptionParser()
+    parser.add_option("-v", "--verbose", action="store_true")
+    options, args = parser.parse_args()
+
+    if options.verbose and args:
+        uploader = Uploader(site=args[0], verbose=True)
+    elif options.verbose:
+        uploader = Uploader(verbose=True)
+    else:
+        uploader = Uploader()
+
+    uploader.createDirs(options.uploadDir)
+    uploader.uploadFiles(options.uploadDir)

@@ -10,9 +10,7 @@ class UploaderTests(unittest.TestCase):
         
     def testCreateDirTreeOnServer(self):
         localRoot = 'testdir'
-        remoteRoot = '/public_html'
-        success = self.uploader.createDirs(localRoot,
-                                           remoteRoot)
+        success = self.uploader.createDirs(localRoot)
         self.assertTrue(success)
 
     def testUploadAllFiles(self):
@@ -66,7 +64,7 @@ class LocalTests(unittest.TestCase):
     
 class RemoteTests(unittest.TestCase):
     def setUp(self):
-        self.remote = upload.Remote()
+        self.remote = upload.Remote('ftp.skilldrick.co.uk')
 
     def tearDown(self):
         self.remote.close()
