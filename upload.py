@@ -56,7 +56,11 @@ class Local:
         return count
 
     def getLocalDirs(self, dir, leaves=False):
+        ignoreDirs = tuple([os.path.join(dir, x) for x
+                      in settings.ignoreDirs])
         for x in os.walk(dir):
+            if x[0].startswith(ignoreDirs):
+                continue
             if leaves and x[1] == []:
                 yield x[0]
             if not leaves:
@@ -66,8 +70,15 @@ class Local:
         return os.path.getsize(filename)
 
     def getLocalFiles(self, dir):
+        ignoreDirs = tuple([os.path.join(dir, x) for x
+                      in settings.ignoreDirs])
+        ignoreSuffixes = tuple(settings.ignoreFileSuffixes)
         for x in os.walk(dir):
+            if x[0].startswith(ignoreDirs):
+                continue
             for file in x[2]:
+                if file.endswith(ignoreSuffixes):
+                    continue
                 yield os.path.join(x[0], file)
 
 
@@ -133,7 +144,7 @@ class Remote:
             self.ftp.mkd(dir)
 
     def exists(self, parent, item=None):
-        parent = self.rstrip(parent)
+        parent = self.stripSlash(parent)
         if item == None:
             parent, item = os.path.split(parent)
         filelist = self.ftp.nlst(parent)
@@ -149,7 +160,7 @@ class Remote:
         self.setCwd(self.webRoot)
         return self.ftp.size(filename)
 
-    def rstrip(self, path):
+    def stripSlash(self, path):
         return path.rstrip('/')
 
     def makeUnix(self, path):

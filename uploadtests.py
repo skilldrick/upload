@@ -23,7 +23,7 @@ class LocalTests(unittest.TestCase):
         self.local = upload.Local()
 
     def testThereAreNDirs(self):
-        N = 15
+        N = 10
         self.assertEqual(N,
                          self.local.countDirs('testdir'))
 
@@ -59,7 +59,7 @@ class LocalTests(unittest.TestCase):
     def testGetLocalFiles(self):
         files = self.local.getLocalFiles('testdir')
         count = len(list(files))
-        self.assertEqual(count, 19)
+        self.assertEqual(count, 14)
 
     
 class RemoteTests(unittest.TestCase):
@@ -130,11 +130,11 @@ class RemoteTests(unittest.TestCase):
 
     def testUploadBinary(self):
         filename = os.path.join('testdir',
-                                'images',
-                                'photos',
-                                'photo-4.jpg',)
+                                'misc',
+                                'animals',
+                                'cat2.jpg',)
         self.remote.upload(filename,
-                           'testdir/images/photos/photo-4.jpg')
+                           'testdir/misc/animals/cat2.jpg')
 
     
 if __name__ == '__main__':
