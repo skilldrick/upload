@@ -2,7 +2,7 @@ import upload
 
 uploader = upload.Uploader()
 
-for i in uploader.local.getLocalDirs('.'):
+for i in uploader.local.getLocalDirs('testdir'):
     print(i)
 
 print()

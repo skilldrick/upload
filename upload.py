@@ -14,10 +14,11 @@ class Uploader:
         self.local = Local()
         self.remote = Remote(site)
 
-    def createDirs(self, localRoot):
+    def createDirs(self, localRoot, remoteRoot):
         success = True
         for dir in self.local.getLocalDirs(localRoot):
             remoteDir = self.remote.makeUnix(dir)
+            remoteDir = remoteRoot + '/' + remoteDir
             self.remote.create(remoteDir)
         for dir in self.local.getLocalDirs(localRoot, True):
             remoteDir = self.remote.makeUnix(dir)
@@ -29,10 +30,11 @@ class Uploader:
             print('Error creating directories')
         return success
 
-    def uploadFiles(self, dir):
-        files = self.local.getLocalFiles(dir)
+    def uploadFiles(self, localRoot, remoteRoot):
+        files = self.local.getLocalFiles(localRoot)
         for localPath in files:
             remotePath = self.remote.makeUnix(localPath)
+            remotePath =  remoteRoot + '/' + remotePath
             localSize = self.local.getSize(localPath)
             if self.remote.exists(remotePath):
                 remoteSize = self.remote.getSize(remotePath)
@@ -42,6 +44,9 @@ class Uploader:
                 if self.verbose:
                     print('Uploading', localPath)
                 self.remote.upload(localPath, remotePath)
+            else:
+                if self.verbose:
+                    print('Skipping', localPath)
             remoteSize = self.remote.getSize(remotePath)
             if not localSize == remoteSize:
                 return False
@@ -62,9 +67,9 @@ class Local:
             if x[0].startswith(ignoreDirs):
                 continue
             if leaves and x[1] == []:
-                yield x[0]
+                yield x[0][len(dir) + 1:]
             if not leaves:
-                yield x[0]
+                yield x[0][len(dir) + 1:]
 
     def getSize(self, filename):
         return os.path.getsize(filename)
@@ -79,7 +84,8 @@ class Local:
             for file in x[2]:
                 if file.endswith(ignoreSuffixes):
                     continue
-                yield os.path.join(x[0], file)
+                yield os.path.join(x[0][len(dir) + 1:],
+                                   file)
 
 
 class Remote:
@@ -180,5 +186,7 @@ if __name__ == '__main__':
     else:
         uploader = Uploader()
 
-    uploader.createDirs(settings.uploadDir)
-    uploader.uploadFiles(settings.uploadDir)
+    uploader.createDirs(settings.localDir,
+                        settings.remoteDir)
+    uploader.uploadFiles(settings.localDir,
+                         settings.remoteDir)

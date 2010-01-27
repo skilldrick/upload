@@ -9,12 +9,17 @@ class UploaderTests(unittest.TestCase):
         self.uploader = upload.Uploader()
         
     def testCreateDirTreeOnServer(self):
-        localRoot = 'testdir'
-        success = self.uploader.createDirs(localRoot)
+        localRoot = '.'
+        remoteRoot = 'testdir'
+        success = self.uploader.createDirs(localRoot,
+                                           remoteRoot)
         self.assertTrue(success)
 
     def testUploadAllFiles(self):
-        success = self.uploader.uploadFiles('testdir')
+        localRoot = '.'
+        remoteRoot = 'testdir'
+        success = self.uploader.uploadFiles(localRoot,
+                                            remoteRoot)
         self.assertTrue(success)
         
 
@@ -30,19 +35,14 @@ class LocalTests(unittest.TestCase):
     def testGetLocalDirs(self):
         s = os.sep
         localRoot = 'testdir' + s + 'txtfiles'
-        dirs = [
-            localRoot,
-            localRoot + s + 'boring',
-            localRoot + s + 'interesting']
+        dirs = ['', 'boring', 'interesting']
         self.assertEqual(list(self.local.getLocalDirs(localRoot)),
                          dirs)
 
     def testGetLocalLeaves(self):
         s = os.sep
-        localRoot = 'testdir' + s + 'txtfiles'
-        dirs = [
-            localRoot + s + 'boring',
-            localRoot + s + 'interesting']
+        localRoot = os.path.join('testdir', 'txtfiles')
+        dirs = ['boring', 'interesting']
         self.assertEqual(list(self.local.getLocalDirs(localRoot,
                                                       True)),
                          dirs)
