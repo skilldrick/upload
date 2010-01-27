@@ -6,10 +6,10 @@ import re
 import netrc
 import optparse
 
-import options
+import settings
 
 class Uploader:
-    def __init__(self, site=options.site, verbose=False):
+    def __init__(self, site=settings.site, verbose=False):
         self.verbose = verbose
         self.local = Local()
         self.remote = Remote(site)
@@ -79,7 +79,7 @@ class Remote:
         'py',
         ]
 
-    webRoot = options.webRoot
+    webRoot = settings.webRoot
 
     def __init__(self, site):
         try:
@@ -169,5 +169,5 @@ if __name__ == '__main__':
     else:
         uploader = Uploader()
 
-    uploader.createDirs(options.uploadDir)
-    uploader.uploadFiles(options.uploadDir)
+    uploader.createDirs(settings.uploadDir)
+    uploader.uploadFiles(settings.uploadDir)
