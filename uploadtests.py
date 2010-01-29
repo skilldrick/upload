@@ -9,14 +9,14 @@ class UploaderTests(unittest.TestCase):
         self.uploader = upload.Uploader()
         
     def testCreateDirTreeOnServer(self):
-        localRoot = '.'
+        localRoot = 'testdir'
         remoteRoot = 'testdir'
         success = self.uploader.createDirs(localRoot,
                                            remoteRoot)
         self.assertTrue(success)
 
     def testUploadAllFiles(self):
-        localRoot = '.'
+        localRoot = 'testdir'
         remoteRoot = 'testdir'
         success = self.uploader.uploadFiles(localRoot,
                                             remoteRoot)

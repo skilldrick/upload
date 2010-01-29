@@ -35,6 +35,7 @@ class Uploader:
         success = True
         for localPath in files:
             remotePath = self.remote.makeUnix(localPath, remoteRoot)
+            localPath = os.path.join(localRoot, localPath)
             localSize = self.local.getSize(localPath)
             if self.remote.exists(remotePath):
                 remoteSize = self.remote.getSize(remotePath)
