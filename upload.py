@@ -6,7 +6,12 @@ import re
 import netrc
 import optparse
 
-import settings
+import uploadsettings as settings
+
+
+def fill(fillChar):
+    print(''.center(78, fillChar))
+
 
 class Uploader:
     def __init__(self, site=settings.site, verbose=False):
@@ -25,7 +30,8 @@ class Uploader:
                     print('Failed to upload', dir)
                     success = False
         if self.verbose and success:
-            print('\nDirectories created successfully\n\n')
+            print('Directories created successfully')
+            fill('-')
         elif self.verbose:
             print('Error creating directories')
         return success
