@@ -17,20 +17,15 @@ class Uploader:
     def createDirs(self, localRoot, remoteRoot):
         success = True
         for dir in self.local.getLocalDirs(localRoot):
-            remoteDir = self.remote.makeUnix(dir)
-            remoteDir = remoteRoot + '/' + remoteDir
-            if self.verbose:
-                print(remoteDir)
+            remoteDir = self.remote.makeUnix(dir, remoteRoot)
             self.remote.create(remoteDir, self.verbose)
         for dir in self.local.getLocalDirs(localRoot, True):
-            remoteDir = self.remote.makeUnix(dir)
-            remoteDir = remoteRoot + '/' + remoteDir
+            remoteDir = self.remote.makeUnix(dir, remoteRoot)
             if not self.remote.exists(remoteDir):
-                if self.verbose:
-                    print(dir, 'does not exist on server as', remoteDir)
-                success = False
+                    print('Failed to upload', dir)
+                    success = False
         if self.verbose and success:
-            print('Directories created successfully')
+            print('\nDirectories created successfully\n\n')
         elif self.verbose:
             print('Error creating directories')
         return success
@@ -39,11 +34,8 @@ class Uploader:
         files = self.local.getLocalFiles(localRoot)
         success = True
         for localPath in files:
-            remotePath = self.remote.makeUnix(localPath)
-            remotePath =  remoteRoot + '/' + remotePath
+            remotePath = self.remote.makeUnix(localPath, remoteRoot)
             localSize = self.local.getSize(localPath)
-            if self.verbose:
-                print('localPath:', localPath, 'remotePath:', remotePath)
             if self.remote.exists(remotePath):
                 remoteSize = self.remote.getSize(remotePath)
             else:
@@ -155,7 +147,6 @@ class Remote:
             return 'binary'
 
     def create(self, dir, verbose=False):
-        dir = self.makeUnix(dir)
         if not self.exists(dir):
             if verbose:
                 print('Making', dir)
@@ -184,8 +175,8 @@ class Remote:
     def stripSlash(self, path):
         return path.rstrip('/')
 
-    def makeUnix(self, path):
-        return path.replace('\\', '/')
+    def makeUnix(self, path, remoteRoot):
+        return remoteRoot + '/' + path.replace('\\', '/')
 
 
 
