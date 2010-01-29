@@ -19,10 +19,15 @@ class Uploader:
         for dir in self.local.getLocalDirs(localRoot):
             remoteDir = self.remote.makeUnix(dir)
             remoteDir = remoteRoot + '/' + remoteDir
-            self.remote.create(remoteDir)
+            if self.verbose:
+                print(remoteDir)
+            self.remote.create(remoteDir, self.verbose)
         for dir in self.local.getLocalDirs(localRoot, True):
             remoteDir = self.remote.makeUnix(dir)
+            remoteDir = remoteRoot + '/' + remoteDir
             if not self.remote.exists(remoteDir):
+                if self.verbose:
+                    print(dir, 'does not exist on server as', remoteDir)
                 success = False
         if self.verbose and success:
             print('Directories created successfully')
@@ -32,10 +37,13 @@ class Uploader:
 
     def uploadFiles(self, localRoot, remoteRoot):
         files = self.local.getLocalFiles(localRoot)
+        success = True
         for localPath in files:
             remotePath = self.remote.makeUnix(localPath)
             remotePath =  remoteRoot + '/' + remotePath
             localSize = self.local.getSize(localPath)
+            if self.verbose:
+                print('localPath:', localPath, 'remotePath:', remotePath)
             if self.remote.exists(remotePath):
                 remoteSize = self.remote.getSize(remotePath)
             else:
@@ -49,8 +57,10 @@ class Uploader:
                     print('Skipping', localPath)
             remoteSize = self.remote.getSize(remotePath)
             if not localSize == remoteSize:
-                return False
-        return True
+                if self.verbose:
+                    print('localSize:', localSize, 'remoteSize:', remoteSize)
+                success = False
+        return success
 
 
 class Local:
@@ -144,10 +154,15 @@ class Remote:
         else:
             return 'binary'
 
-    def create(self, dir):
+    def create(self, dir, verbose=False):
         dir = self.makeUnix(dir)
         if not self.exists(dir):
+            if verbose:
+                print('Making', dir)
             self.ftp.mkd(dir)
+        else:
+            if verbose:
+                print(dir, 'already exists')
 
     def exists(self, parent, item=None):
         parent = self.stripSlash(parent)
@@ -177,6 +192,7 @@ class Remote:
 if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("-v", "--verbose", action="store_true")
+    parser.add_option("-f", "--files", action="store_true")
     options, args = parser.parse_args()
 
     if options.verbose and args:
@@ -186,7 +202,8 @@ if __name__ == '__main__':
     else:
         uploader = Uploader()
 
-    uploader.createDirs(settings.localDir,
-                        settings.remoteDir)
+    if not options.files:
+        uploader.createDirs(settings.localDir,
+                            settings.remoteDir)
     uploader.uploadFiles(settings.localDir,
                          settings.remoteDir)
