@@ -14,7 +14,9 @@ def fill(fillChar):
 
 
 class Uploader:
-    def __init__(self, site=settings.site, verbose=False):
+    def __init__(self, site=settings.site, verbose=False, comparison=None):
+        if comparison == None:
+            comparison = 'date'
         self.verbose = verbose
         self.local = Local()
         self.remote = Remote(site)
@@ -191,14 +193,15 @@ if __name__ == '__main__':
     parser = optparse.OptionParser()
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-f", "--files", action="store_true")
+    parser.add_option("-c", "--comparison")
     options, args = parser.parse_args()
 
     if options.verbose and args:
-        uploader = Uploader(site=args[0], verbose=True)
+        uploader = Uploader(site=args[0], verbose=True, comparison=options.comparison)
     elif options.verbose:
-        uploader = Uploader(verbose=True)
+        uploader = Uploader(verbose=True, comparison=options.comparison)
     else:
-        uploader = Uploader()
+        uploader = Uploader(comparison=options.comparison)
 
     if not options.files:
         uploader.createDirs(settings.localDir,
