@@ -1,6 +1,7 @@
 #!/usr/local/bin/python3.1
 
 from ftplib import FTP
+import ftplib
 import os
 import re
 import netrc
@@ -181,10 +182,10 @@ class Remote:
                 print('Skipping', dir)
 
     def exists(self, parent, item=None):
-        #try using MDTM here and checking for a 550 response
         parent = self.stripSlash(parent)
         if item == None:
             parent, item = os.path.split(parent)
+
         filelist = self.ftp.nlst(parent)
         return item in filelist
 
