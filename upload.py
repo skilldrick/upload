@@ -5,6 +5,7 @@ import os
 import re
 import netrc
 import optparse
+import time
 
 import uploadsettings as settings
 
@@ -16,7 +17,13 @@ def fill(fillChar):
 class Uploader:
     def __init__(self, site=settings.site, verbose=False, comparison=None):
         if comparison == None:
-            comparison = 'date'
+            comparison = 'time'
+        
+        if comparison == 'size':
+            self.comparisonFunc = self.compareSize
+        else:
+            self.comparisonFunc = self.compareTime
+
         self.verbose = verbose
         self.local = Local()
         self.remote = Remote(site)
@@ -44,24 +51,33 @@ class Uploader:
         for localPath in files:
             remotePath = self.remote.makeUnix(localPath, remoteRoot)
             localPath = os.path.join(localRoot, localPath)
-            localSize = self.local.getSize(localPath)
-            if self.remote.exists(remotePath):
-                remoteSize = self.remote.getSize(remotePath)
-            else:
-                remoteSize = -1
-            if not localSize == remoteSize:
+            if not self.comparisonFunc(localPath, remotePath):
                 if self.verbose:
                     print('Uploading', localPath)
                 self.remote.upload(localPath, remotePath)
             else:
                 if self.verbose:
                     print('Skipping', localPath)
-            remoteSize = self.remote.getSize(remotePath)
-            if not localSize == remoteSize:
+            if not self.comparisonFunc(localPath, remotePath):
                 if self.verbose:
-                    print('localSize:', localSize, 'remoteSize:', remoteSize)
+                    print(localPath, 'is different to', remotePath)
                 success = False
         return success
+
+    def compareSize(self, localFile, remoteFile):
+        localSize = self.local.getSize(localFile)
+        if self.remote.exists(remoteFile):
+            remoteSize = self.remote.getSize(remoteFile)
+        else:
+            remoteSize = -1
+        return localSize == remoteSize
+
+    def compareTime(self, localFile, remoteFile):
+        remoteTime = self.remote.getTime(remoteFile)
+        localTime = os.path.getmtime(localFile)
+        localTime = time.gmtime(localTime)
+        localTime = int(time.strftime('%Y%m%d%H%M%S', localTime))
+        return localTime <= remoteTime
 
 
 class Local:
@@ -162,9 +178,10 @@ class Remote:
             self.ftp.mkd(dir)
         else:
             if verbose:
-                print(dir, 'already exists')
+                print('Skipping', dir)
 
     def exists(self, parent, item=None):
+        #try using MDTM here and checking for a 550 response
         parent = self.stripSlash(parent)
         if item == None:
             parent, item = os.path.split(parent)
@@ -180,6 +197,10 @@ class Remote:
     def getSize(self, filename):
         self.setCwd(self.webRoot)
         return self.ftp.size(filename)
+
+    def getTime(self, filename):
+        modifiedTime = self.ftp.sendcmd('MDTM ' + filename)
+        return int(modifiedTime[4:])
 
     def stripSlash(self, path):
         return path.rstrip('/')
@@ -197,9 +218,11 @@ if __name__ == '__main__':
     options, args = parser.parse_args()
 
     if options.verbose and args:
-        uploader = Uploader(site=args[0], verbose=True, comparison=options.comparison)
+        uploader = Uploader(site=args[0], verbose=True,
+                            comparison=options.comparison)
     elif options.verbose:
-        uploader = Uploader(verbose=True, comparison=options.comparison)
+        uploader = Uploader(verbose=True,
+                            comparison=options.comparison)
     else:
         uploader = Uploader(comparison=options.comparison)
 
