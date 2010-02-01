@@ -3,5 +3,5 @@ webRoot = '/public_html'
 localDir = '.' #by default use current directory
 remoteDir = 'dev'
 
-ignoreDirs = ['.git']
-ignoreFileSuffixes = ['.py', '.pyc', '~', '#', '.gitignore']
+ignoreDirs = ['.git', 'fancybox']
+ignoreFileSuffixes = ['.py', '.pyc', '~', '#', '.gitignore', '.bat']

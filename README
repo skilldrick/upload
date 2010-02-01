@@ -1,0 +1,9 @@
+upload.py
+
+Run upload.py in the directory to be uploaded. Use the -v option
+for verbose output, and the -f option to only upload files
+(skipping directories). Use the -c option to specify time or size
+comparison.
+
+On Windows, place the run.bat file in the directory to be uploaded.
+The upload folder will need to be added to the PATH env variable.
