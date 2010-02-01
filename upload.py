@@ -70,14 +70,17 @@ class Uploader:
         if self.remote.exists(remoteFile):
             remoteSize = self.remote.getSize(remoteFile)
         else:
-            remoteSize = -1
+            return False
         return localSize == remoteSize
 
     def compareTime(self, localFile, remoteFile):
-        remoteTime = self.remote.getTime(remoteFile)
         localTime = os.path.getmtime(localFile)
         localTime = time.gmtime(localTime)
         localTime = int(time.strftime('%Y%m%d%H%M%S', localTime))
+        if self.remote.exists(remoteFile):
+            remoteTime = self.remote.getTime(remoteFile)
+        else:
+            return False
         return localTime <= remoteTime
 
 
