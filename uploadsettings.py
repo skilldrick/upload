@@ -1,7 +1,7 @@
-site = 'ftp.skilldrick.co.uk'
+site = 'ftp.realreads.co.uk'
 webRoot = '/public_html'
 localDir = '.' #by default use current directory
-remoteDir = 'newdir'
+remoteDir = 'dev'
 
 ignoreDirs = ['.git']
 ignoreFileSuffixes = ['.py', '.pyc', '~', '#', '.gitignore']
