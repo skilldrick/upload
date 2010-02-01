@@ -16,6 +16,9 @@ def fill(fillChar):
 
 
 class Uploader:
+    dircount = 0
+    filecount = 0
+    
     def __init__(self, site=settings.site, verbose=False, comparison=None):
         if comparison == None:
             comparison = 'time'
@@ -33,11 +36,13 @@ class Uploader:
         success = True
         for dir in self.local.getLocalDirs(localRoot):
             remoteDir = self.remote.makeUnix(dir, remoteRoot)
-            self.remote.create(remoteDir, self.verbose)
+            if self.remote.create(remoteDir, self.verbose):
+                self.dircount += 1
         for dir in self.local.getLocalDirs(localRoot, True):
             remoteDir = self.remote.makeUnix(dir, remoteRoot)
             if not self.remote.exists(remoteDir):
                     print('Failed to upload', dir)
+                    self.dircount -= 1
                     success = False
         if self.verbose and success:
             print('Directories created successfully')
@@ -56,6 +61,7 @@ class Uploader:
                 if self.verbose:
                     print('Uploading', localPath)
                 self.remote.upload(localPath, remotePath)
+                self.filecount += 1
             else:
                 if self.verbose:
                     print('Skipping', localPath)
@@ -82,6 +88,22 @@ class Uploader:
         else:
             return False
         return localTime <= remoteTime
+
+    def printSummary(self):
+        fill('=')
+        if not (self.dircount or self.filecount):
+            print('Nothing changed')
+        if self.dircount:
+            if self.dircount == 1:
+                print('1 directory was created')
+            else:
+                print(self.dircount, 'directories were created')
+        if self.filecount:
+            if self.filecount == 1:
+                print('1 file was uploaded')
+            else:
+                print(self.filecount, 'files were uploaded')
+            
 
 
 class Local:
@@ -180,9 +202,11 @@ class Remote:
             if verbose:
                 print('Making', dir)
             self.ftp.mkd(dir)
+            return True
         else:
             if verbose:
                 print('Skipping', dir)
+            return False
 
     def exists(self, parent, item=None):
         parent = self.stripSlash(parent)
@@ -235,3 +259,5 @@ if __name__ == '__main__':
                             settings.remoteDir)
     uploader.uploadFiles(settings.localDir,
                          settings.remoteDir)
+    if options.verbose:
+        uploader.printSummary()
