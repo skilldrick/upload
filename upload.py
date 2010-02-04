@@ -113,9 +113,18 @@ class Local:
             count += 1
         return count
 
+    def getIgnoreDirs(self, dir):
+        ignoreDirsNested = settings.ignoreDirs
+        ignoreDirs = []
+        for item in ignoreDirsNested:
+            if isinstance(item, list):
+                item = os.path.join(*item)
+            ignoreDirs.append(item)
+        ignoreDirs = tuple([os.path.join(dir, x) for x in ignoreDirs])
+        return ignoreDirs
+
     def getLocalDirs(self, dir, leaves=False):
-        ignoreDirs = tuple([os.path.join(dir, x) for x
-                      in settings.ignoreDirs])
+        ignoreDirs = self.getIgnoreDirs(dir)
         for x in os.walk(dir):
             if x[0].startswith(ignoreDirs):
                 continue
@@ -128,8 +137,7 @@ class Local:
         return os.path.getsize(filename)
 
     def getLocalFiles(self, dir):
-        ignoreDirs = tuple([os.path.join(dir, x) for x
-                      in settings.ignoreDirs])
+        ignoreDirs = self.getIgnoreDirs(dir)
         ignoreSuffixes = tuple(settings.ignoreFileSuffixes)
         for x in os.walk(dir):
             if x[0].startswith(ignoreDirs):
