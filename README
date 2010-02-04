@@ -1,9 +1,28 @@
-upload.py
+upload.py (Give me a better name!)
 
-Run upload.py in the directory to be uploaded. Use the -v option
-for verbose output, and the -f option to only upload files
-(skipping directories). Use the -c option to specify time or size
-comparison.
+Run upload.py in the directory to be uploaded. Use the -v option for
+verbose output, and the -f option to only upload files (skipping
+directories). Use the -c option to specify time or size comparison
+(i.e. upload.py -c size)
 
 On Windows, place the run.bat file in the directory to be uploaded.
-The upload folder will need to be added to the PATH env variable.
+The upload.py folder will need to be added to the PATH env variable.
+
+Files in this repository (in alphabetical order):
+.gitignore: Ignores *~ (Emacs backup files) and *.pyc (compiled Python)
+Makefile: For Unix systems, just a few shortcuts for running the code.
+          make: Run the upload.py script with verbose on
+	  make test: Run the unit tests
+	  make profile: Run the unit tests through cProfile
+README: This file
+ftplib.patch: Unfortunately, this script makes use of the Python3.1
+ftp library, which has a bug in the ascii upload section. This patch
+fixes that bug.
+run.bat: The Windows Batch file that means that the command-disinclined
+can run the script in verbose mode without leaving the mouse for a second
+testdir/: A directory of files for test-uploading
+testing.py: A place to try out new things, without breaking
+anything existing
+upload.py: The main script
+uploadsettings.py: Settings for the script
+uploadtests.py: The unit tests
