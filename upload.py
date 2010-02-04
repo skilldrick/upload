@@ -18,6 +18,7 @@ def fill(fillChar):
 class Uploader:
     dircount = 0
     filecount = 0
+    fileerrorcount = 0
     
     def __init__(self, site=settings.site, verbose=False, comparison=None):
         if comparison == None:
@@ -66,6 +67,8 @@ class Uploader:
                 if self.verbose:
                     print('Skipping', localPath)
             if not self.comparisonFunc(localPath, remotePath):
+                self.filecount -= 1
+                self.fileerrorcount += 1
                 if self.verbose:
                     print(localPath, 'is different to', remotePath)
                 success = False
@@ -103,6 +106,11 @@ class Uploader:
                 print('1 file was uploaded')
             else:
                 print(self.filecount, 'files were uploaded')
+        if self.fileerrorcount:
+            if self.fileerrorcount == 1:
+                print('There was an error with 1 file')
+            else:
+                print('There were errors with', self.filecount, 'files')
             
 
 
