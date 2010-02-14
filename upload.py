@@ -1,8 +1,12 @@
 #!/usr/local/bin/python3.1
 
+import sys
+import os
+#adds the current path to the import path
+sys.path.insert(0, os.path.realpath('.')) 
+
 from ftplib import FTP
 import ftplib
-import os
 import re
 import netrc
 import optparse

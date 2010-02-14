@@ -1,5 +1,5 @@
 default :
-	python3.1 upload.py -vfs
+	upload.py -vfs
 
 test :
 	python3.1 uploadtests.py
