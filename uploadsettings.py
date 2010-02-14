@@ -4,4 +4,5 @@ localDir = '.' #by default use current directory
 remoteDir = 'testdir'
 
 ignoreDirs = ['.git', 'fancybox']
-ignoreFileSuffixes = ['.py', '.pyc', '~', '#', '.gitignore', '.bat']
+ignoreFileSuffixes = ['.py', '.pyc', '~', '#',
+                      '.gitignore', '.lastrun', '.Makefile', '.bat']

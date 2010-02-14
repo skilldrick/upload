@@ -21,7 +21,13 @@ class UploaderTests(unittest.TestCase):
         success = self.uploader.uploadFiles(localRoot,
                                             remoteRoot)
         self.assertTrue(success)
-        
+
+    def testReadWriteLastRun(self):
+        lastrun1 = self.uploader.readLastRun()
+        self.uploader.writeLastRun(lastrun1 - 1)
+        lastrun2 = self.uploader.readLastRun()
+        self.assertEqual(lastrun1 - 1, lastrun2)
+
 
 class LocalTests(unittest.TestCase):
     def setUp(self):

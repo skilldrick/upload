@@ -25,9 +25,11 @@ class Uploader:
             comparison = 'time'
         
         if comparison == 'size':
-            self.comparisonFunc = self.compareSize
+            self.comparisonFuncA = self.compareSize
+            self.comparisonFuncB = self.compareSize
         else:
-            self.comparisonFunc = self.compareTime
+            self.comparisonFuncA = self.compareTime#Locally
+            self.comparisonFuncB = self.compareTime
 
         self.verbose = verbose
         self.local = Local()
@@ -58,7 +60,7 @@ class Uploader:
         for localPath in files:
             remotePath = self.remote.makeUnix(localPath, remoteRoot)
             localPath = os.path.join(localRoot, localPath)
-            if not self.comparisonFunc(localPath, remotePath):
+            if not self.comparisonFuncA(localPath, remotePath):
                 if self.verbose:
                     print('Uploading', localPath)
                 self.remote.upload(localPath, remotePath)
@@ -66,7 +68,7 @@ class Uploader:
             else:
                 if self.verbose:
                     print('Skipping', localPath)
-            if not self.comparisonFunc(localPath, remotePath):
+            if not self.comparisonFuncB(localPath, remotePath):
                 self.filecount -= 1
                 self.fileerrorcount += 1
                 if self.verbose:
@@ -83,14 +85,17 @@ class Uploader:
         return localSize == remoteSize
 
     def compareTime(self, localFile, remoteFile):
-        localTime = os.path.getmtime(localFile)
-        localTime = time.gmtime(localTime)
-        localTime = int(time.strftime('%Y%m%d%H%M%S', localTime))
+        localTime = self.local.getTime(localFile)
         if self.remote.exists(remoteFile):
             remoteTime = self.remote.getTime(remoteFile)
         else:
             return False
         return localTime <= remoteTime
+
+    def compareTimeLocally(self, localFile, remoteFile):
+        localTime = self.local.getTime(localFile)
+        lastRun = self.readLastRun()
+        return localTime <= lastRun
 
     def printSummary(self):
         fill('=')
@@ -112,6 +117,19 @@ class Uploader:
             else:
                 print('There were errors with', self.filecount, 'files')
             
+    def writeLastRun(self, value):
+        import configparser
+        config = configparser.RawConfigParser()
+        config.set('DEFAULT', 'lastrun', value)
+        with open('.lastrun', 'w') as configfile:
+            config.write(configfile)
+
+    def readLastRun(self):
+        import configparser
+        config = configparser.RawConfigParser()
+        config.read('.lastrun')
+        lastRun = config.getint('DEFAULT', 'lastrun')
+        return lastRun
 
 
 class Local:
@@ -143,6 +161,14 @@ class Local:
 
     def getSize(self, filename):
         return os.path.getsize(filename)
+
+    def getTime(self, filename):
+        localTime = os.path.getmtime(filename)
+        localTime = time.gmtime(localTime)
+        return int(time.strftime('%Y%m%d%H%M%S', localTime))
+
+    def getNow(self):
+        return int(time.strftime('%Y%m%d%H%M%S', time.localtime()))
 
     def getLocalFiles(self, dir):
         ignoreDirs = self.getIgnoreDirs(dir)
@@ -253,14 +279,17 @@ class Remote:
         return remoteRoot + '/' + path.replace('\\', '/')
 
 
-
-if __name__ == '__main__':
+def main():
     parser = optparse.OptionParser()
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-f", "--files", action="store_true")
     parser.add_option("-c", "--comparison")
+    parser.add_option("-s", "--speedy")
+    #need to pass options to Uploader in a more sensible way
+    #speedy option doesn't need to check files have uploaded
+    #so we'll have to refactor uploadfiles
     options, args = parser.parse_args()
-
+    
     if options.verbose and args:
         uploader = Uploader(site=args[0], verbose=True,
                             comparison=options.comparison)
@@ -275,5 +304,10 @@ if __name__ == '__main__':
                             settings.remoteDir)
     uploader.uploadFiles(settings.localDir,
                          settings.remoteDir)
+    uploader.writeLastRun(uploader.local.getNow())
     if options.verbose:
         uploader.printSummary()
+    
+        
+if __name__ == '__main__':
+    main()

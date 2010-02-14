@@ -1,15 +1,11 @@
-import time
-import os
 import upload
-import ftplib
+import time
+import datetime
 
 
 uploader = upload.Uploader()
 
-file = 'newdir/output.txt'
+modtime = uploader.local.getTime('.lastrun')
+now = int(time.strftime('%Y%m%d%H%M%S', time.localtime()))
 
-try:
-    response = uploader.remote.ftp.sendcmd('MDTM ' + file)
-    print(response)
-except ftplib.error_perm:
-    print('File does not exist')
+print(now - modtime)
