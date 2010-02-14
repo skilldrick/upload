@@ -119,7 +119,10 @@ class Uploader:
     def compareTimeLocally(self, localFile, remoteFile):
         localTime = self.local.getTime(localFile)
         lastRun = self.readLastRun()
-        return localTime <= lastRun
+        if lastRun == -1: #if no config file
+            return self.compareTime(localFile, remoteFile)
+        else:
+            return localTime <= lastRun
 
     def printSummary(self):
         fill('=')
@@ -151,8 +154,11 @@ class Uploader:
     def readLastRun(self):
         import configparser
         config = configparser.RawConfigParser()
-        config.read('.lastrun')
-        lastRun = config.getint('DEFAULT', 'lastrun')
+        try:
+            config.read('.lastrun')
+            lastRun = config.getint('DEFAULT', 'lastrun')
+        except configparser.NoOptionError:
+            lastRun = -1
         return lastRun
 
 
