@@ -2,3 +2,4 @@ Lion
 Monkey
 Ant
 Dog
+Cat

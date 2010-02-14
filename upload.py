@@ -20,18 +20,28 @@ class Uploader:
     filecount = 0
     fileerrorcount = 0
     
-    def __init__(self, site=settings.site, verbose=False, comparison=None):
-        if comparison == None:
+    def __init__(self, options=None, args=None):
+        try:
+            comparison = options.comparison
+        except AttributeError:
             comparison = 'time'
+
+        try:
+            site = args[0]
+        except (IndexError, TypeError):
+            site = settings.site
         
         if comparison == 'size':
-            self.comparisonFuncA = self.compareSize
-            self.comparisonFuncB = self.compareSize
+            self.comparisonFunc = self.compareSize
         else:
-            self.comparisonFuncA = self.compareTime#Locally
-            self.comparisonFuncB = self.compareTime
+            self.comparisonFunc = self.compareTime
+            
+        self.speedyComparisonFunc = self.compareTimeLocally
 
-        self.verbose = verbose
+        try:
+            self.verbose = options.verbose
+        except AttributeError:
+            self.verbose = False
         self.local = Local()
         self.remote = Remote(site)
 
@@ -54,26 +64,40 @@ class Uploader:
             print('Error creating directories')
         return success
 
-    def uploadFiles(self, localRoot, remoteRoot):
+    def uploadFiles(self, localRoot, remoteRoot, speedy=False):
         files = self.local.getLocalFiles(localRoot)
         success = True
         for localPath in files:
             remotePath = self.remote.makeUnix(localPath, remoteRoot)
             localPath = os.path.join(localRoot, localPath)
-            if not self.comparisonFuncA(localPath, remotePath):
-                if self.verbose:
-                    print('Uploading', localPath)
-                self.remote.upload(localPath, remotePath)
-                self.filecount += 1
-            else:
-                if self.verbose:
+            if speedy:
+                if not self.speedyComparisonFunc(localPath, remotePath):
+                    if self.verbose:
+                        print('Uploading', localPath)
+                    self.remote.upload(localPath, remotePath)
+                    self.filecount += 1
+                    if not self.comparisonFunc(localPath, remotePath):
+                        self.filecount -= 1
+                        self.fileerrorcount += 1
+                        if self.verbose:
+                            print(localPath, 'is different to', remotePath)
+                        success = False
+                elif self.verbose:
                     print('Skipping', localPath)
-            if not self.comparisonFuncB(localPath, remotePath):
-                self.filecount -= 1
-                self.fileerrorcount += 1
-                if self.verbose:
-                    print(localPath, 'is different to', remotePath)
-                success = False
+            else:
+                if not self.comparisonFunc(localPath, remotePath):
+                    if self.verbose:
+                        print('Uploading', localPath)
+                    self.remote.upload(localPath, remotePath)
+                    self.filecount += 1
+                elif self.verbose:
+                    print('Skipping', localPath)
+                if not self.comparisonFunc(localPath, remotePath):
+                    self.filecount -= 1
+                    self.fileerrorcount += 1
+                    if self.verbose:
+                        print(localPath, 'is different to', remotePath)
+                    success = False
         return success
 
     def compareSize(self, localFile, remoteFile):
@@ -283,30 +307,28 @@ def main():
     parser = optparse.OptionParser()
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-f", "--files", action="store_true")
+    parser.add_option("-s", "--speedy", action="store_true")
     parser.add_option("-c", "--comparison")
-    parser.add_option("-s", "--speedy")
     #need to pass options to Uploader in a more sensible way
     #speedy option doesn't need to check files have uploaded
     #so we'll have to refactor uploadfiles
     options, args = parser.parse_args()
-    
-    if options.verbose and args:
-        uploader = Uploader(site=args[0], verbose=True,
-                            comparison=options.comparison)
-    elif options.verbose:
-        uploader = Uploader(verbose=True,
-                            comparison=options.comparison)
-    else:
-        uploader = Uploader(comparison=options.comparison)
+
+    uploader = Uploader(options, args)
 
     if not options.files:
         uploader.createDirs(settings.localDir,
                             settings.remoteDir)
+
     uploader.uploadFiles(settings.localDir,
-                         settings.remoteDir)
+                         settings.remoteDir,
+                         options.speedy)
+
     uploader.writeLastRun(uploader.local.getNow())
+    
     if options.verbose:
         uploader.printSummary()
+        print()
     
         
 if __name__ == '__main__':
