@@ -28,6 +28,18 @@ class UploaderTests(unittest.TestCase):
         lastrun2 = self.uploader.readLastRun()
         self.assertEqual(lastrun1 - 1, lastrun2)
 
+    def testUploadEmptyLines(self):
+        localFile = os.path.join('testdir',
+                                'misc',
+                                'empty.txt',)
+        remoteFile = 'testdir/misc/empty.txt'
+        self.uploader.remote.upload(localFile,
+                                    remoteFile)
+        self.assertTrue(self.uploader.checkEmpty(localFile, remoteFile))
+        
+
+
+
 
 class LocalTests(unittest.TestCase):
     def setUp(self):

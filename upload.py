@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3.1
+#!/usr/bin/python2.6
 
 import sys
 import os
@@ -16,7 +16,7 @@ import uploadsettings as settings
 
 
 def fill(fillChar):
-    print(''.center(78, fillChar))
+    print ''.center(78, fillChar)
 
 
 class Uploader:
@@ -58,14 +58,14 @@ class Uploader:
         for dir in self.local.getLocalDirs(localRoot, True):
             remoteDir = self.remote.makeUnix(dir, remoteRoot)
             if not self.remote.exists(remoteDir):
-                    print('Failed to upload', dir)
+                    print 'Failed to upload', dir
                     self.dircount -= 1
                     success = False
         if self.verbose and success:
-            print('Directories created successfully')
+            print 'Directories created successfully'
             fill('-')
         elif self.verbose:
-            print('Error creating directories')
+            print 'Error creating directories'
         return success
 
     def uploadFiles(self, localRoot, remoteRoot, speedy=False):
@@ -77,30 +77,30 @@ class Uploader:
             if speedy:
                 if not self.speedyComparisonFunc(localPath, remotePath):
                     if self.verbose:
-                        print('Uploading', localPath)
+                        print 'Uploading', localPath
                     self.remote.upload(localPath, remotePath)
                     self.filecount += 1
                     if not self.comparisonFunc(localPath, remotePath):
                         self.filecount -= 1
                         self.fileerrorcount += 1
                         if self.verbose:
-                            print(localPath, 'is different to', remotePath)
+                            print localPath, 'is different to', remotePath
                         success = False
                 elif self.verbose:
-                    print('Skipping', localPath)
+                    print 'Skipping', localPath
             else:
                 if not self.comparisonFunc(localPath, remotePath):
                     if self.verbose:
-                        print('Uploading', localPath)
+                        print 'Uploading', localPath
                     self.remote.upload(localPath, remotePath)
                     self.filecount += 1
                 elif self.verbose:
-                    print('Skipping', localPath)
+                    print 'Skipping', localPath
                 if not self.comparisonFunc(localPath, remotePath):
                     self.filecount -= 1
                     self.fileerrorcount += 1
                     if self.verbose:
-                        print(localPath, 'is different to', remotePath)
+                        print localPath, 'is different to', remotePath
                     success = False
         return success
 
@@ -118,7 +118,15 @@ class Uploader:
             remoteTime = self.remote.getTime(remoteFile)
         else:
             return False
-        return localTime <= remoteTime
+        if localTime > remoteTime:
+            return self.checkEmpty(localFile, remoteFile)
+        return True
+
+    def checkEmpty(self, localFile, remoteFile):
+        if (not self.local.getSize(localFile)) and (not self.remote.getSize(remoteFile)):
+            return True
+        else:
+            return False
 
     def compareTimeLocally(self, localFile, remoteFile):
         localTime = self.local.getTime(localFile)
@@ -131,33 +139,33 @@ class Uploader:
     def printSummary(self):
         fill('=')
         if not (self.dircount or self.filecount):
-            print('Nothing changed')
+            print 'Nothing changed'
         if self.dircount:
             if self.dircount == 1:
-                print('1 directory was created')
+                print '1 directory was created'
             else:
-                print(self.dircount, 'directories were created')
+                print self.dircount, 'directories were created'
         if self.filecount:
             if self.filecount == 1:
-                print('1 file was uploaded')
+                print '1 file was uploaded'
             else:
-                print(self.filecount, 'files were uploaded')
+                print self.filecount, 'files were uploaded'
         if self.fileerrorcount:
             if self.fileerrorcount == 1:
-                print('There was an error with 1 file')
+                print 'There was an error with 1 file'
             else:
-                print('There were errors with', self.filecount, 'files')
+                print 'There were errors with', self.filecount, 'files'
             
     def writeLastRun(self, value):
-        import configparser
-        config = configparser.RawConfigParser()
+        import ConfigParser
+        config = ConfigParser.RawConfigParser()
         config.set('DEFAULT', 'lastrun', value)
         with open('.lastrun', 'w') as configfile:
             config.write(configfile)
 
     def readLastRun(self):
-        import configparser
-        config = configparser.RawConfigParser()
+        import ConfigParser
+        config = ConfigParser.RawConfigParser()
         try:
             config.read('.lastrun')
             lastRun = config.getint('DEFAULT', 'lastrun')
@@ -276,12 +284,12 @@ class Remote:
     def create(self, dir, verbose=False):
         if not self.exists(dir):
             if verbose:
-                print('Making', dir)
+                print 'Making', dir
             self.ftp.mkd(dir)
             return True
         else:
             if verbose:
-                print('Skipping', dir)
+                print 'Skipping', dir
             return False
 
     def exists(self, parent, item=None):
@@ -338,7 +346,7 @@ def main():
     
     if options.verbose:
         uploader.printSummary()
-        print()
+        print
     
         
 if __name__ == '__main__':
