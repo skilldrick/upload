@@ -118,8 +118,10 @@ class Uploader:
             remoteTime = self.remote.getTime(remoteFile)
         else:
             return False
+        #if local file is newer, first check if file is empty:
         if localTime > remoteTime:
             return self.checkEmpty(localFile, remoteFile)
+        #local file is older or same as remote:
         return True
 
     def checkEmpty(self, localFile, remoteFile):
