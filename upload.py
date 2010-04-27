@@ -171,7 +171,7 @@ class Uploader:
         try:
             config.read('.lastrun')
             lastRun = config.getint('DEFAULT', 'lastrun')
-        except configparser.NoOptionError:
+        except ConfigParser.NoOptionError:
             lastRun = -1
         return lastRun
 
