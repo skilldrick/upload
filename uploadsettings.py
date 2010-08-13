@@ -1,8 +1,9 @@
-site = 'ftp.skilldrick.co.uk'
+site = 'ftp.realreads.co.uk'
 webRoot = '/public_html'
 localDir = '.' #by default use current directory
-remoteDir = 'testdir'
+remoteDir = 'dev'
 
-ignoreDirs = ['.git', 'fancybox']
+ignoreDirs = ['.git', 'fancybox', 'safeinc']
 ignoreFileSuffixes = ['.py', '.pyc', '~', '#',
-                      '.gitignore', '.lastrun', '.Makefile', '.bat']
+                      '.gitignore', '.lastrun',
+                      '.Makefile', '.bat', 'Thumbs.db']

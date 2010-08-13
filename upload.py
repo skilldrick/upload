@@ -212,7 +212,7 @@ class Local:
         return int(time.strftime('%Y%m%d%H%M%S', localTime))
 
     def getNow(self):
-        return int(time.strftime('%Y%m%d%H%M%S', time.localtime()))
+        return int(time.strftime('%Y%m%d%H%M%S', time.gmtime()))
 
     def getLocalFiles(self, dir):
         ignoreDirs = self.getIgnoreDirs(dir)
