@@ -4,6 +4,6 @@ localDir = '.' #by default use current directory
 remoteDir = 'dev'
 
 ignoreDirs = ['.git', 'fancybox', 'safeinc']
-ignoreFileSuffixes = ['.py', '.pyc', '~', '#',
+ignoreFileSuffixes = ['.py', '.pyc', '~', '#', '.swp',
                       '.gitignore', '.lastrun',
                       '.Makefile', '.bat', 'Thumbs.db']
