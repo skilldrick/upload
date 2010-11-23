@@ -1,6 +1,9 @@
 default :
 	upload.py -vfs
 
+folders :
+	upload.py -vs
+
 test :
 	python2.6 uploadtests.py
 
