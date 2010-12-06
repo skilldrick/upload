@@ -1,2 +1,0 @@
-upload.py -v
-pause
