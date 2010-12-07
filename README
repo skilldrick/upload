@@ -5,8 +5,9 @@ verbose output, and the -f option to only upload files (skipping
 directories). Use the -c option to specify time or size comparison
 (i.e. upload.py -c size)
 
-On Windows, place the run.bat file in the directory to be uploaded.
-The upload.py folder will need to be added to the PATH env variable.
+A valid .netrc will have to exist in ~/.netrc
+
+upload.py now only supports Windows through Cygwin.
 
 Files in this repository (in alphabetical order):
 .gitignore: Ignores *~ (Emacs backup files) and *.pyc (compiled Python)
