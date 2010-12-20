@@ -244,10 +244,12 @@ class Remote:
             homedir = os.path.expanduser('~') + '\\Application Data\\'
             x = netrc.netrc(homedir + '.netrc')
         info = x.authenticators(site)
-        self.user = info[0]
+        if not info:
+            raise Exception('Authentication not found in .netrc')
+        self.user = info[0] 
         self.passwd = info[2]
         self.ftp = FTP(site)
-        self.ftp.login(user=self.user, passwd=self.passwd)
+        self.ftp.login(user=self.user, passwd=self.passwd) #if this fails, login info incorrect
         self.setCwd(self.webRoot)
         self.local = Local()
 
