@@ -33,7 +33,10 @@ class Uploader:
         try:
             site = args[0]
         except (IndexError, TypeError):
-            site = settings.site
+            if options.production:
+                site = settings.productionSite
+            else:
+                site = settings.site
         
         if comparison == 'size':
             self.comparisonFunc = self.compareSize
@@ -330,6 +333,7 @@ def main():
     parser.add_option("-v", "--verbose", action="store_true")
     parser.add_option("-f", "--files", action="store_true")
     parser.add_option("-s", "--speedy", action="store_true")
+    parser.add_option("-p", "--production", action="store_true")
     parser.add_option("-c", "--comparison")
     #need to pass options to Uploader in a more sensible way
     #speedy option doesn't need to check files have uploaded
@@ -338,12 +342,17 @@ def main():
 
     uploader = Uploader(options, args)
 
+    remoteDir = settings.remoteDir
+    if options.production:
+        remoteDir = settings.productionRemoteDir
+
     if not options.files:
         uploader.createDirs(settings.localDir,
-                            settings.remoteDir)
+                            remoteDir)
+
 
     uploader.uploadFiles(settings.localDir,
-                         settings.remoteDir,
+                         remoteDir,
                          options.speedy)
 
     uploader.writeLastRun(uploader.local.getNow())
